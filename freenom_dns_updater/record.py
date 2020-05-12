@@ -17,16 +17,27 @@ class RecordType(Enum):
 
 
 class Record(object):
-    def __init__(self, name='', type=RecordType.A, ttl=14440, target='', domain=None):
+    def __init__(self, name='', type=RecordType.A, ttl=14440, target='', domain=None, priority=10):
         self._name = None
         self._type = None
         self._ttl = None
         self._domain = None
+        self._priority = None
         self.name = name
         self.type = type
         self.ttl = ttl
         self.target = target
+        self.priority = priority
         self.domain = domain
+
+    @property
+    def priority(self):
+        return self._priority
+
+    @priority.setter
+    def priority(self, value):
+        self._priority = int(value)
+
 
     @property
     def name(self):
@@ -71,7 +82,7 @@ class Record(object):
             raise ValueError("bad type")
 
     def __str__(self, *args, **kwargs):
-        return "Record({0.name}, {0.type.name} -> {0.target})".format(self)
+        return "Record({0.name}, {0.domain}, {0.type.name} -> {0.target})".format(self)
 
     def __repr__(self, *args, **kwargs):
         return "<{0}({1.name}, {1.type.name})>".format(self.__class__.__name__, self)
@@ -88,6 +99,8 @@ class Record(object):
         if self.ttl != other.ttl:
             return False
         if self.target != other.target:
+            return False
+        if self.priority != other.priority:
             return False
         if self.domain != other.domain:
             return False

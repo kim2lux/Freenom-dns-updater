@@ -47,7 +47,7 @@ def format_data(data, formater='TEXT'):
                             'expire': data.expire_date}, None)
     elif isinstance(data, freenom_dns_updater.Record):
         data = format_data({'name': data.name, 'type': data.type.name,
-                            'ttl': data.ttl, 'target': data.target}, None)
+                            'ttl': data.ttl, 'target': data.target, 'priority': data.priority}, None)
     elif isinstance(data, datetime.date):
         data = str(data)
     return _format_map[formater](data)
@@ -108,7 +108,7 @@ def record_ls(user, password, domain, format):
 @click.option('-l', '--ttl', help='Record time to live.', type=click.INT)
 @click.option('-u', '--update', help='Update existing record', default=True, type=click.BOOL)
 @click.help_option('--help', '-h')
-def record_add(user, password, domain, name, type, target, ttl, update):
+def record_add(user, password, domain, name, type, target, ttl, update, priority):
     d = {'login': user, 'password': password, 'record': []}
     record = {'domain': domain}
     if name:
@@ -119,6 +119,9 @@ def record_add(user, password, domain, name, type, target, ttl, update):
         record['target'] = target
     if ttl:
         record['ttl'] = ttl
+    if priority:
+        record['priority'] = priority
+
     d['record'].append(record)
     config = freenom_dns_updater.Config(d)
 
@@ -139,7 +142,7 @@ def record_add(user, password, domain, name, type, target, ttl, update):
 @click.option('-a', '--target', help='Record target. An ip address for A records')
 @click.option('-l', '--ttl', help='Record time to live.', type=click.INT)
 @click.help_option('--help', '-h')
-def record_update(user, password, domain, name, type, target, ttl):
+def record_update(user, password, domain, name, type, target, ttl, priority):
     d = {'login': user, 'password': password, 'record': []}
     record = {'domain': domain}
     if name:
@@ -150,6 +153,8 @@ def record_update(user, password, domain, name, type, target, ttl):
         record['target'] = target
     if ttl:
         record['ttl'] = ttl
+    if priority:
+        record['priority'] = priority
     d['record'].append(record)
     config = freenom_dns_updater.Config(d)
 
@@ -171,7 +176,7 @@ def record_update(user, password, domain, name, type, target, ttl):
 @click.option('-l', '--ttl', help='Record time to live.', type=click.INT)
 @click.option('-u', '--update', help='Update existing record', default=True, type=click.BOOL)
 @click.help_option('--help', '-h')
-def record_rm(user, password, domain, name, type, target, ttl, update):
+def record_rm(user, password, domain, name, type, target, ttl, update, priority):
     d = {'login': user, 'password': password, 'record': []}
     record = {'domain': domain}
     if name:
@@ -182,6 +187,8 @@ def record_rm(user, password, domain, name, type, target, ttl, update):
         record['target'] = target
     if ttl:
         record['ttl'] = ttl
+    if priority:
+        record['priority'] = priority
     d['record'].append(record)
     config = freenom_dns_updater.Config(d)
 
@@ -236,10 +243,12 @@ def record_action(action, config, ignore_errors):
         click.secho('Unable to login with the given credential', fg='red', bold=True)
         sys.exit(6)
     domains = freenom.list_domains()
+    print(domains)
     domains_mapping = {d.name: d for d in domains}
     ok_count = 0
     err_count = 0
     for rec in records:
+        print(rec)
         domain_name = rec.domain.name
         rec.domain = domains_mapping.get(domain_name)
         if rec.domain is None:

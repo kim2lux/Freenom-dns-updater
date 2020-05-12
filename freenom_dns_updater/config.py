@@ -101,6 +101,9 @@ class Config(dict):
         if 'ttl' in raw_record:
             record.ttl = raw_record['ttl']
 
+        if 'priority' in raw_record:
+            record.priority = raw_record['priority']
+
         if target_given and record.target != 'auto':
             try:
                 addr = ipaddress.ip_address(six.u(record.target))

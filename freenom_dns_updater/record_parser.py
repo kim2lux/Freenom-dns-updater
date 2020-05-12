@@ -16,10 +16,12 @@ class RecordParser(object):
         ret = []
         for raw_record in raw_records:
             inputs = raw_record.find_all("input")
+            print(inputs)
             record = Record()
             record.type = inputs[1]["value"]
             record.name = inputs[2]["value"]
             record.ttl = inputs[3]["value"]
             record.target = inputs[4]["value"]
+            record.priority = inputs[5]["value"]
             ret.append(record)
         return ret

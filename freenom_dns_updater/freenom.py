@@ -34,7 +34,7 @@ class Freenom(object):
         playload = {'token': token,
                     'username': login,
                     'password': password}
-        r = self.session.post(url, playload)
+        r = self.session.post(url, playload, headers={'Host': 'my.freenom.com', 'Referer': 'https://my.freenom.com/clientarea.php'})
         assert r, "couldn't get %s" % url
         return self.is_logged_in(r)
 
@@ -76,7 +76,7 @@ class Freenom(object):
         playload[record_id + "[type]"] = record.type.name
         playload[record_id + "[ttl]"] = str(record.ttl)
         playload[record_id + "[value]"] = str(record.target)
-        playload[record_id + "[priority]"] = ""
+        playload[record_id + "[priority]"] = str(record.priority)
         playload[record_id + "[port]"] = ""
         playload[record_id + "[weight]"] = ""
         playload[record_id + "[forward_type]"] = "1"
@@ -107,6 +107,7 @@ class Freenom(object):
             playload[record_id + "[name]"] = str(rec.name)
             playload[record_id + "[ttl]"] = str(rec.ttl)
             playload[record_id + "[value]"] = str(rec.target)
+            playload[record_id + "[priority]"] = str(rec.priority)
 
         r = self.session.post(url, data=playload)
         soup = BeautifulSoup(r.text, "html.parser")
@@ -161,6 +162,7 @@ class Freenom(object):
             playload[record_id + "[name]"] = str(rec.name)
             playload[record_id + "[ttl]"] = str(rec.ttl)
             playload[record_id + "[value]"] = str(rec.target)
+            playload[record_id + "[priority]"] = str(rec.priority)
 
         return bool(self.session.post(url, data=playload))
 
@@ -184,7 +186,7 @@ class Freenom(object):
         return self._get_token(url)
 
     def _get_token(self, url):
-        r = self.session.get(url)
+        r = self.session.get(url, verify=False)
         assert r, "couldn't get %s" % url
         soup = BeautifulSoup(r.text, "html.parser")
         token = soup.find("input", {'name': 'token'})
